@@ -20,6 +20,7 @@
   "dependencies": {
     "concat-stream": "^2.0.0",
     "split2": "^3.2.2",
-    "through2": "^4.0.2"
+    "through2": "^4.0.2",
+    "ws": "^7.4.4"
   }
 }
