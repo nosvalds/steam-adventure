@@ -1,21 +1,22 @@
 const duplexer2 = require("duplexer2");
-const through2 = require("through2");
+const { Transform } = require("stream");
 
 module.exports = function (counter) {
   // return a duplex stream to count countries on the writable side
   // and pass through `counter` on the readable side
   const counts = {};
-  const stream = through2({ objectMode: true }, write, end);
 
-  function write(row, encoding, next) {
-    counts[row.country] = (counts[row.country] || 0) + 1;
-    next();
-  }
+  const myTransform = new Transform({
+    objectMode: true,
+    transform(row, encoding, next) {
+      counts[row.country] = (counts[row.country] || 0) + 1;
+      next();
+    },
+    flush(done) {
+      counter.setCounts(counts);
+      done();
+    },
+  });
 
-  function end(done) {
-    counter.setCounts(counts);
-    done();
-  }
-
-  return duplexer2(stream, counter);
+  return duplexer2(myTransform, counter);
 };
